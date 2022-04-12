@@ -57,11 +57,11 @@ const Layout = ({ children }) => {
                  </Link>
              </li>
             )}
-            <li className="nav-item">
+            { isAuth() &&  (<li className="nav-item">
                 
                     <a className="nav-link text-dark" onClick={logout}>Logout</a>
              
-            </li>
+            </li> )}
         </ul>
     );
 

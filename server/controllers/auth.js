@@ -3,6 +3,7 @@ const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const { registerEmailParams } = require('../helpers/email');
 const shortId = require('shortid');
+const expressJwt = require('express-jwt');
 
 AWS.config.update({
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -86,6 +87,7 @@ exports.registerActivate = (req, res) => {
 
 exports.login = (req, res) => {
     const { email, password } = req.body;
+    console.log('hellonnnn')
     // console.table({ email, password });
     User.findOne({ email }).exec((err, user) => {
         if (err || !user) {
@@ -109,3 +111,35 @@ exports.login = (req, res) => {
         });
     });
 };
+
+exports.requiresSignIn = expressJwt({secret : process.env.JWT_SECRET})
+
+exports.authMiddleware = (req, res, next) => {
+    const authUserId = req._id;
+    User.findOne({_id: authUserId}).exec((err, user) => {
+        if(err || !user) {
+            return res.status(400).json({
+                error : 'User not found'
+            })
+        }
+        req.profile = user;
+        next()
+    })
+}
+exports.adminMiddleware = (req, res, next) => {
+    const authUserId = req._id;
+    User.findOne({_id: authUserId}).exec((err, user) => {
+        if(err || !user) {
+            return res.status(400).json({
+                error : 'User not found'
+            })
+        }
+        if(user.role !== 'admin') {
+            return res.status(400).json({
+                error : 'Admin resource. Access denied'
+            })
+        }
+        req.profile = user;
+        next()
+    })
+}
