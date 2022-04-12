@@ -33,7 +33,8 @@ const Login = () => {
 const response = await  axios.post(`${API}/login`, {
     email, password
 })
- authenticate(response, () =>  isAuth() && isAuth.role === 'admin' ? Router.push('/admin') : Router.push('/user') )
+console.log(isAuth())
+ authenticate(response, () =>  isAuth() && isAuth().role === 'admin' ? Router.push('/admin') : Router.push('/user') )
 }
         catch(error) {
             setState({
